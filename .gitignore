@@ -1,5 +1,13 @@
-preguntadosApi/node_modules
-preguntadosFront/node_modules
+preguntadosApi/node_modules/**/*
+preguntadosFront/node_modules/**/*
+preguntadosFront/.expo/*
+
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
 
 
 preguntadosApi/.env
