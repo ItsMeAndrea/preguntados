@@ -1,15 +1,21 @@
 const express = require("express");
 const cors = require("cors");
-const app = express();
+const dotenv = require("dotenv");
 const pool = require("./db");
+dotenv.config();
+const usersRoute = require("./app/routes/usersRoute");
+
+const app = express();
 
 //middleware
 app.use(cors());
+app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 //ROUTES
+app.use("/api/v1", usersRoute);
 
-//create user
+/* //create user
 app.post("/users", async (req, res) => {
   try {
     const { email, password, username } = req.body;
@@ -46,9 +52,8 @@ app.get("/users/:id", async (req, res) => {
   } catch (err) {
     console.log(err.message);
   }
-});
+}); */
 
-app.listen(5000, () => {
-  console.log("server 5000");
+app.listen(process.env.SERVER_PORT).on("listening", () => {
+  console.log(`live from ${process.env.SERVER_PORT}`);
 });
-//test
