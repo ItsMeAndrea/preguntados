@@ -6,7 +6,7 @@
 2. Crear archivo .env
 
 ```sh
-      DB_USER = *tu usuario de postgres*
+       DB_USER = *tu usuario de postgres*
        DB_PASSWORD = *tu password de postgres*
        DB_HOST = localhost
        DB_PORT = *el puerto de postgres (usualmente es 5432)*
@@ -18,7 +18,7 @@
 4. Descargar ngrok. Esto nos ayuda a poder utilizar la API desde el telefono, haciendo publico el servidor.
    -- Descargar: https://ngrok.com/download
 
-5. Iniciar el servidor con el siguiente comando:
+5. Iniciar el servidor con el siguiente comando. Ademas tambien se crean las tablas necesarias para la base de datos:
 
    ```sh
    $ npm run setup
@@ -34,7 +34,7 @@ El "5000" es el puerto que va a escuchar ngrok, por esto debe ser el SERVER_PORT
 
 Una vez iniciado ngrok se muestra un link que deberas copiar para pegar en el front mas adelante.
 
-### Configuracion del Front
+### Configurar Front
 
 1. Buscar el archivo **preguntadosApi.js** en _"preguntadosFront/src/api/preguntadosApi.js"_
 2. Cambiar el link de **baseURL** por el que se obtuvo en la consola con ngrok:
@@ -67,4 +67,4 @@ $ npm start
 expo build:android -t apk
 ```
 
-2. Se comienz el build del apk. Esto se tarda un tiempo. Cuando este listo, te va a proveer un link con el cual se podra descargar el apk
+2. Se comienza el build del apk, esto se tarda un tiempo. Cuando este listo, te va a proveer un link con el cual se podra descargar el apk
