@@ -2,11 +2,11 @@ const dbQuery = require("../db/dev/dbQuery");
 const { errorMessage, successMessage, status } = require("../helpers/status");
 
 const createNormalEntry = async (req, res) => {
-  const { user_id, username, time } = req.body;
+  const { username, time } = req.body;
 
   const createEntryQuery =
-    "INSERT INTO leader_normal(user_id, username, time) VALUES($1,$2,$3) RETURNING *";
-  const values = [user_id, username, time];
+    "INSERT INTO leader_normal( username, time) VALUES($1,$2) RETURNING *";
+  const values = [username, time];
 
   try {
     const { rows } = await dbQuery.query(createEntryQuery, values);

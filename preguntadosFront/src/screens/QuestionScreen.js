@@ -15,11 +15,18 @@ import { Grid, Row, Col } from "react-native-easy-grid";
 import { StyleSheet } from "react-native";
 
 import { Context as TriviaContext } from "../context/TriviaContext";
+import { Context as AuthContext } from "../context/AuthContext";
 
 const QuestionScreen = ({ navigation }) => {
-  const { getNormalQuestions, state, handleExitGame } = useContext(
-    TriviaContext
-  );
+  const {
+    state: { username },
+  } = useContext(AuthContext);
+  const {
+    getNormalQuestions,
+    state,
+    handleExitGame,
+    addToLeaderboard,
+  } = useContext(TriviaContext);
   const { normalQuestions, isLoading, isGameOver } = state;
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [stoptimer, setStopTimer] = useState("");
@@ -59,11 +66,12 @@ const QuestionScreen = ({ navigation }) => {
   };
 
   const handleQuestions = (answer) => {
+    console.log(username, "username");
     const isAnswerCorrect = checkAnswer(answer);
     if (isAnswerCorrect) {
       if (currentQuestion === 9) {
         console.log("GANASTE");
-        navigation.navigate("Results", { gameWon: true });
+        addToLeaderboard({ username, time: "20" });
       } else {
         setCurrentQuestion(currentQuestion + 1);
       }
@@ -123,7 +131,8 @@ const QuestionScreen = ({ navigation }) => {
                     >
                       {state.normalQuestions[currentQuestion].question
                         .replace(/&quot;/g, '"')
-                        .replace(/&#039;/g, "'")}
+                        .replace(/&#039;/g, "'")
+                        .replace(/&amp;/g, "&")}
                     </Text>
                   </Body>
                 </CardItem>
@@ -139,7 +148,7 @@ const QuestionScreen = ({ navigation }) => {
                     rounded
                     block
                     style={{ marginBottom: 20 }}
-                    onPress={() => handleQuestions(answer)}
+                    onPress={() => handleQuestions(answer, username)}
                     success={
                       answer ===
                         normalQuestions[currentQuestion].correct_answer && true
