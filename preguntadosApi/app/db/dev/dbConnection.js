@@ -27,7 +27,7 @@ const createLeaderNormalTable = () => {
   const leaderNormalQuery = `CREATE TABLE IF NOT EXISTS leader_normal
   (leaderNormal_id SERIAL PRIMARY KEY, 
   username VARCHAR(100) NOT NULL,  
-  time VARCHAR(100) NOT NULL)`;
+  time float NOT NULL)`;
 
   pool
     .query(leaderNormalQuery)
@@ -45,7 +45,7 @@ const createLeaderRushTable = () => {
   const leaderRushQuery = `CREATE TABLE IF NOT EXISTS leader_rush
   (leaderRush_id SERIAL PRIMARY KEY, 
   username VARCHAR(100) NOT NULL,  
-  questions VARCHAR(100) NOT NULL)`;
+  questions float NOT NULL)`;
 
   pool
     .query(leaderRushQuery)

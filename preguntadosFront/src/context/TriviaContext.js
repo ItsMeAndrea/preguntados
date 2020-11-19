@@ -19,7 +19,13 @@ const triviaReducer = (state, action) => {
       };
     case "get_rush_questions":
       return { ...state, rushQuestions: action.payload, isLoading: false };
-
+    case "get_leaderboard":
+      return {
+        ...state,
+        normalLeaderboard: action.payload.normalLeaderboard,
+        rushLeaderboard: action.payload.rushLeaderboard,
+        isLoading: false,
+      };
     default:
       return state;
   }
@@ -70,6 +76,26 @@ const addToRushLeaderboard = (dispatch) => async ({ username, questions }) => {
   }
 };
 
+const getLeaderboard = (dispatch) => async () => {
+  try {
+    const normalResponse = await preguntadosApi.get(
+      "/api/v1/leaderboard/getNormal"
+    );
+    const rushResponse = await preguntadosApi.get(
+      "/api/v1/leaderboard/getRush"
+    );
+    dispatch({
+      type: "get_leaderboard",
+      payload: {
+        normalLeaderboard: normalResponse.data.data,
+        rushLeaderboard: rushResponse.data.data,
+      },
+    });
+  } catch (error) {
+    console.log(error.response.data, "error");
+  }
+};
+
 export const { Provider, Context } = createDataContext(
   triviaReducer,
   {
@@ -78,10 +104,12 @@ export const { Provider, Context } = createDataContext(
     addToNormalLeaderboard,
     addToRushLeaderboard,
     getRushQuestions,
+    getLeaderboard,
   },
   {
     isLoading: true,
     normalQuestions: [{ question: "" }],
     rushQuestions: [{ question: "" }],
+    normalLeaderboard: [],
   }
 );
