@@ -39,7 +39,7 @@ const handleExitGame = (dispatch) => () => {
   dispatch({ type: "exit_game" });
 };
 
-const addToLeaderboard = (dispatch) => async ({ username, time }) => {
+const addToNormalLeaderboard = (dispatch) => async ({ username, time }) => {
   try {
     const response = await preguntadosApi.post(
       "/api/v1/leaderboard/addNormal",
@@ -56,9 +56,29 @@ const addToLeaderboard = (dispatch) => async ({ username, time }) => {
   }
 };
 
+const addToRushLeaderboard = (dispatch) => async ({ username, questions }) => {
+  console.log(username, questions, "rush data");
+  try {
+    const response = await preguntadosApi.post("/api/v1/leaderboard/addRush", {
+      username,
+      questions,
+    });
+    dispatch({ type: "exit_game" });
+    navigate("Results", { gameWon: false });
+  } catch (error) {
+    console.log(error.response.data, "error");
+  }
+};
+
 export const { Provider, Context } = createDataContext(
   triviaReducer,
-  { getNormalQuestions, handleExitGame, addToLeaderboard, getRushQuestions },
+  {
+    getNormalQuestions,
+    handleExitGame,
+    addToNormalLeaderboard,
+    addToRushLeaderboard,
+    getRushQuestions,
+  },
   {
     isLoading: true,
     normalQuestions: [{ question: "" }],

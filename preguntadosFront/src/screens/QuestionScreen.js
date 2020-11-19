@@ -21,7 +21,12 @@ const QuestionScreen = ({ navigation }) => {
   const {
     state: { username },
   } = useContext(AuthContext);
-  const { state, handleExitGame, addToLeaderboard } = useContext(TriviaContext);
+  const {
+    state,
+    handleExitGame,
+    addToNormalLeaderboard,
+    addToRushLeaderboard,
+  } = useContext(TriviaContext);
   const { normalQuestions, isLoading, rushQuestions } = state;
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [stoptimer, setStopTimer] = useState("");
@@ -80,10 +85,7 @@ const QuestionScreen = ({ navigation }) => {
     setUpdateTime(getActualTime());
 
     if (numberQuestion % 5 === 0) {
-      console.log("multiplo");
       addTime(updateTime + 10 * 1000);
-    } else {
-      console.log("foo");
     }
   };
 
@@ -93,7 +95,9 @@ const QuestionScreen = ({ navigation }) => {
       if (normalMode) {
         if (currentQuestion === 9) {
           console.log("GANASTE");
-          addToLeaderboard({ username, time: "20" });
+          const gameTime = (60 * 1000 - getActualTime()) / 1000;
+
+          addToNormalLeaderboard({ username, time: gameTime });
         } else {
           setCurrentQuestion(currentQuestion + 1);
         }
@@ -103,8 +107,7 @@ const QuestionScreen = ({ navigation }) => {
       }
     } else {
       stoptimer();
-      handleExitGame();
-      navigation.navigate("Results", { gameWon: false });
+      addToRushLeaderboard({ username, questions: currentQuestion });
       console.log("PERDISTE wrong");
     }
   };
