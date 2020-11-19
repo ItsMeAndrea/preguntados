@@ -1,5 +1,6 @@
 import createDataContext from "./createDataContext";
 import triviaApi from "../api/triviaApi";
+import preguntadosApi from "../api/preguntadosApi";
 import { navigate } from "../navigationRef";
 
 const triviaReducer = (state, action) => {
@@ -35,11 +36,25 @@ const handleGameOver = (dispatch) => () => {
 };
 
 const addToLeaderboard = (dispatch) => async ({ username, time }) => {
-  //dispatch({type:"add_leaderNormal",payload})
+  console.log(username, time, "data");
+  try {
+    const response = await preguntadosApi.post(
+      "/api/v1/leaderboard/addNormal",
+      {
+        username,
+        time,
+      }
+    );
+
+    dispatch({ type: "exit_game" });
+    navigate("Results", { gameWon: true });
+  } catch (error) {
+    console.log(error.response.data, "error");
+  }
 };
 
 export const { Provider, Context } = createDataContext(
   triviaReducer,
-  { getNormalQuestions, handleExitGame, handleGameOver },
-  { normalQuestions: [{}], isLoading: true, isGameOver: false }
+  { getNormalQuestions, handleExitGame, handleGameOver, addToLeaderboard },
+  { normalQuestions: [{}], isLoading: true }
 );

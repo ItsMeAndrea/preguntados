@@ -26,7 +26,6 @@ const createUserTable = () => {
 const createLeaderNormalTable = () => {
   const leaderNormalQuery = `CREATE TABLE IF NOT EXISTS leader_normal
   (leaderNormal_id SERIAL PRIMARY KEY, 
-  user_id VARCHAR(100) UNIQUE NOT NULL, 
   username VARCHAR(100) NOT NULL,  
   time VARCHAR(100) NOT NULL)`;
 
