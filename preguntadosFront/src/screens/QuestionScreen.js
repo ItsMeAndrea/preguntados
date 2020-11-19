@@ -10,25 +10,23 @@ import {
   Spinner,
   Icon,
 } from "native-base";
+import Timer from "react-compound-timer";
 import { Grid, Row, Col } from "react-native-easy-grid";
 import { StyleSheet } from "react-native";
 
 import { Context as TriviaContext } from "../context/TriviaContext";
 
-import Timer from "../components/Timer";
-
 const QuestionScreen = ({ navigation }) => {
-  const {
-    getNormalQuestions,
-    state,
-    handleExitGame,
-    handleGameOver,
-  } = useContext(TriviaContext);
+  const { getNormalQuestions, state, handleExitGame } = useContext(
+    TriviaContext
+  );
   const { normalQuestions, isLoading, isGameOver } = state;
   const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [stoptimer, setStopTimer] = useState("");
 
   useEffect(() => {
     getNormalQuestions();
+    navigation.navigate("Question", { handleExitGame });
   }, []);
 
   if (isLoading) {
@@ -65,12 +63,12 @@ const QuestionScreen = ({ navigation }) => {
     if (isAnswerCorrect) {
       if (currentQuestion === 9) {
         console.log("GANASTE");
-
         navigation.navigate("Results", { gameWon: true });
       } else {
         setCurrentQuestion(currentQuestion + 1);
       }
     } else {
+      stoptimer();
       navigation.navigate("Results", { gameWon: false });
       console.log("PERDISTE wrong");
     }
@@ -89,7 +87,30 @@ const QuestionScreen = ({ navigation }) => {
         <Grid>
           <Row size={1}>
             <Col style={{ alignSelf: "center" }}>
-              <Timer navigation={navigation} isGameOver={isGameOver} />
+              <Timer
+                initialTime={60 * 1000}
+                timeToUpdate={10}
+                direction="backward"
+                checkpoints={[
+                  {
+                    time: 0,
+                    callback: () =>
+                      navigation.navigate("Results", { gameWon: false }),
+                  },
+                ]}
+              >
+                {({ stop }) => (
+                  <Text style={{ fontFamily: "Helvetica Neue" }}>
+                    {setStopTimer(() => stop)}
+                    <Text style={{ fontSize: 32 }}>
+                      <Timer.Seconds />
+                    </Text>
+                    <Text style={{ fontSize: 12 }}>
+                      <Timer.Milliseconds />
+                    </Text>
+                  </Text>
+                )}
+              </Timer>
               <Card>
                 <CardItem>
                   <Body>
