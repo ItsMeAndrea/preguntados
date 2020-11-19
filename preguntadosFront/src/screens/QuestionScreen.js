@@ -96,6 +96,7 @@ const QuestionScreen = ({ navigation }) => {
         if (currentQuestion === 9) {
           console.log("GANASTE");
           const gameTime = (60 * 1000 - getActualTime()) / 1000;
+          console.log(typeof gameTime);
 
           addToNormalLeaderboard({ username, time: gameTime });
         } else {
@@ -117,12 +118,16 @@ const QuestionScreen = ({ navigation }) => {
       return normalQuestions[currentQuestion].question
         .replace(/&quot;/g, '"')
         .replace(/&#039;/g, "'")
-        .replace(/&amp;/g, "&");
+        .replace(/&amp;/g, "&")
+        .replace(/&oacute;/g, "ó")
+        .replace(/&eacute;/g, "é");
     } else {
       return rushQuestions[currentQuestion].question
         .replace(/&quot;/g, '"')
         .replace(/&#039;/g, "'")
-        .replace(/&amp;/g, "&");
+        .replace(/&amp;/g, "&")
+        .replace(/&oacute;/g, "ó")
+        .replace(/&eacute;/g, "é");
     }
   };
 

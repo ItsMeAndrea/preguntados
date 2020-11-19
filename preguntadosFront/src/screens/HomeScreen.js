@@ -8,7 +8,9 @@ import { set } from "react-native-reanimated";
 
 const HomeScreen = ({ navigation }) => {
   const { signout } = useContext(AuthContext);
-  const { getNormalQuestions, getRushQuestions } = useContext(TriviaContext);
+  const { getNormalQuestions, getRushQuestions, getLeaderboard } = useContext(
+    TriviaContext
+  );
 
   return (
     <Container style={{ flex: 1 }}>
@@ -48,8 +50,24 @@ const HomeScreen = ({ navigation }) => {
           block
           style={{ marginHorizontal: 20, marginBottom: 20 }}
           success
+          onPress={() => {
+            getLeaderboard();
+            navigation.navigate("LeaderNormal");
+          }}
         >
-          <Text>Leaderboard</Text>
+          <Text>Normal Leaderboard</Text>
+        </Button>
+        <Button
+          rounded
+          block
+          style={{ marginHorizontal: 20, marginBottom: 20 }}
+          success
+          onPress={() => {
+            getLeaderboard();
+            navigation.navigate("LeaderRush");
+          }}
+        >
+          <Text>Rush Leaderboard</Text>
         </Button>
         <Button
           rounded
@@ -68,17 +86,6 @@ const HomeScreen = ({ navigation }) => {
 HomeScreen.navigationOptions = {
   headerTitle: "Preguntados",
 };
-
-/* HomeScreen.navigationOptions = () => {
-  const { signout } = useContext(AuthContext);
-  return {
-    headerRight: () => (
-      <TouchableOpacity style={{ marginRight: 20 }} onPress={() => signout()}>
-        <Icon name="sign-out" type="FontAwesome" />
-      </TouchableOpacity>
-    ),
-  };
-}; */
 
 export default HomeScreen;
 

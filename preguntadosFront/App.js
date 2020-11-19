@@ -19,11 +19,6 @@ import ResolveAuthScreen from "./src/screens/ResolveAuthScreen";
 import QuestionScreen from "./src/screens/QuestionScreen";
 import ResultsScreen from "./src/screens/ResultsScreen";
 
-const leaderboardFlow = createBottomTabNavigator({
-  LeaderNormal: LeaderNormalScreen,
-  LeaderRush: LeaderRushScreen,
-});
-
 const switchNavigator = createSwitchNavigator({
   ResolveAuth: ResolveAuthScreen,
   loginFlow: createStackNavigator({
@@ -34,7 +29,8 @@ const switchNavigator = createSwitchNavigator({
     Home: HomeScreen,
     Question: QuestionScreen,
     Results: ResultsScreen,
-    leaderboardFlow: leaderboardFlow,
+    LeaderNormal: LeaderNormalScreen,
+    LeaderRush: LeaderRushScreen,
   }),
 });
 
