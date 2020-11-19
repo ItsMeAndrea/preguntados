@@ -1,6 +1,5 @@
 import React from "react";
 import { Button, Container, Content, Text, H1 } from "native-base";
-import { navigate } from "../navigationRef";
 
 const ResultsScreen = ({ navigation }) => {
   const gameWon = navigation.getParam("gameWon");
@@ -21,7 +20,7 @@ const ResultsScreen = ({ navigation }) => {
 
         <Button
           onPress={() => {
-            navigation - navigate("Home");
+            navigation.popToTop();
           }}
           rounded
           block

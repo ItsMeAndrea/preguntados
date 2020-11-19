@@ -8,6 +8,7 @@ import { set } from "react-native-reanimated";
 
 const HomeScreen = ({ navigation }) => {
   const { signout } = useContext(AuthContext);
+  const { getNormalQuestions, getRushQuestions } = useContext(TriviaContext);
 
   return (
     <Container style={{ flex: 1 }}>
@@ -23,7 +24,8 @@ const HomeScreen = ({ navigation }) => {
           block
           style={{ marginHorizontal: 20, marginBottom: 20 }}
           onPress={() => {
-            navigation.navigate("Question", { mode: "normal" });
+            getNormalQuestions();
+            navigation.navigate("Question", { normalMode: true });
           }}
           warning
         >
@@ -34,7 +36,8 @@ const HomeScreen = ({ navigation }) => {
           block
           style={{ marginHorizontal: 20, marginBottom: 20 }}
           onPress={() => {
-            navigation.navigate("Question", { mode: "rush" });
+            getRushQuestions();
+            navigation.navigate("Question", { normalMode: false });
           }}
           danger
         >
