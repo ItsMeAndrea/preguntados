@@ -34,6 +34,10 @@ const handleGameOver = (dispatch) => () => {
   dispatch({ type: "game_over" });
 };
 
+const addToLeaderboard = (dispatch) => async ({ username, time }) => {
+  //dispatch({type:"add_leaderNormal",payload})
+};
+
 export const { Provider, Context } = createDataContext(
   triviaReducer,
   { getNormalQuestions, handleExitGame, handleGameOver },

@@ -50,7 +50,7 @@ const createUser = async (req, res) => {
       return res.status(status.conflict).send(errorMessage);
     }
 
-    errorMessage.error = "Hubo un error en la operacion 555";
+    errorMessage.error = "Hubo un error en la operacion";
     return res.status(status.error).send(errorMessage);
   }
 };
