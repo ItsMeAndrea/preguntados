@@ -33,11 +33,8 @@ const switchNavigator = createSwitchNavigator({
   mainFlow: createStackNavigator({
     Home: HomeScreen,
     Question: QuestionScreen,
-
-    leaderboardFlow: leaderboardFlow,
-  }),
-  resultsFlow: createStackNavigator({
     Results: ResultsScreen,
+    leaderboardFlow: leaderboardFlow,
   }),
 });
 

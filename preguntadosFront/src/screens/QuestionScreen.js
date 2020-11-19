@@ -21,18 +21,17 @@ const QuestionScreen = ({ navigation }) => {
   const {
     state: { username },
   } = useContext(AuthContext);
-  const {
-    getNormalQuestions,
-    state,
-    handleExitGame,
-    addToLeaderboard,
-  } = useContext(TriviaContext);
-  const { normalQuestions, isLoading, isGameOver } = state;
+  const { state, handleExitGame, addToLeaderboard } = useContext(TriviaContext);
+  const { normalQuestions, isLoading, rushQuestions } = state;
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [stoptimer, setStopTimer] = useState("");
+  const [getActualTime, setGetActualTime] = useState("");
+  const [updateTime, setUpdateTime] = useState(0);
+  const [addTime, setAddTime] = useState("");
+
+  const normalMode = navigation.getParam("normalMode");
 
   useEffect(() => {
-    getNormalQuestions();
     navigation.navigate("Question", { handleExitGame });
   }, []);
 
@@ -42,9 +41,12 @@ const QuestionScreen = ({ navigation }) => {
 
   const handleAnswers = () => {
     if (!isLoading) {
-      const correctAnwer = normalQuestions[currentQuestion].correct_answer;
-      const incorrectAnswers =
-        normalQuestions[currentQuestion].incorrect_answers;
+      const correctAnwer = normalMode
+        ? normalQuestions[currentQuestion].correct_answer
+        : rushQuestions[currentQuestion].correct_answer;
+      const incorrectAnswers = normalMode
+        ? normalQuestions[currentQuestion].incorrect_answers
+        : rushQuestions[currentQuestion].incorrect_answers;
 
       const answersArray = [...incorrectAnswers, correctAnwer];
 
@@ -58,27 +60,66 @@ const QuestionScreen = ({ navigation }) => {
   };
 
   const checkAnswer = (answer) => {
-    if (answer === normalQuestions[currentQuestion].correct_answer) {
-      return true;
+    if (normalMode) {
+      if (answer === normalQuestions[currentQuestion].correct_answer) {
+        return true;
+      } else {
+        return false;
+      }
     } else {
-      return false;
+      if (answer === rushQuestions[currentQuestion].correct_answer) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  };
+
+  const handleRushMode = () => {
+    const numberQuestion = currentQuestion + 1;
+    setUpdateTime(getActualTime());
+
+    if (numberQuestion % 5 === 0) {
+      console.log("multiplo");
+      addTime(updateTime + 10 * 1000);
+    } else {
+      console.log("foo");
     }
   };
 
   const handleQuestions = (answer) => {
-    console.log(username, "username");
     const isAnswerCorrect = checkAnswer(answer);
     if (isAnswerCorrect) {
-      if (currentQuestion === 9) {
-        console.log("GANASTE");
-        addToLeaderboard({ username, time: "20" });
+      if (normalMode) {
+        if (currentQuestion === 9) {
+          console.log("GANASTE");
+          addToLeaderboard({ username, time: "20" });
+        } else {
+          setCurrentQuestion(currentQuestion + 1);
+        }
       } else {
         setCurrentQuestion(currentQuestion + 1);
+        handleRushMode();
       }
     } else {
       stoptimer();
+      handleExitGame();
       navigation.navigate("Results", { gameWon: false });
       console.log("PERDISTE wrong");
+    }
+  };
+
+  const showQuestions = () => {
+    if (normalMode) {
+      return normalQuestions[currentQuestion].question
+        .replace(/&quot;/g, '"')
+        .replace(/&#039;/g, "'")
+        .replace(/&amp;/g, "&");
+    } else {
+      return rushQuestions[currentQuestion].question
+        .replace(/&quot;/g, '"')
+        .replace(/&#039;/g, "'")
+        .replace(/&amp;/g, "&");
     }
   };
 
@@ -96,7 +137,7 @@ const QuestionScreen = ({ navigation }) => {
           <Row size={1}>
             <Col style={{ alignSelf: "center" }}>
               <Timer
-                initialTime={60 * 1000}
+                initialTime={normalMode ? 60 * 1000 : 20 * 1000}
                 timeToUpdate={10}
                 direction="backward"
                 checkpoints={[
@@ -107,9 +148,13 @@ const QuestionScreen = ({ navigation }) => {
                   },
                 ]}
               >
-                {({ stop }) => (
+                {({ stop, getTime, setTime }) => (
                   <Text style={{ fontFamily: "Helvetica Neue" }}>
-                    {setStopTimer(() => stop)}
+                    {
+                      (setStopTimer(() => stop),
+                      setGetActualTime(() => getTime),
+                      setAddTime(() => setTime))
+                    }
                     <Text style={{ fontSize: 32 }}>
                       <Timer.Seconds />
                     </Text>
@@ -129,10 +174,7 @@ const QuestionScreen = ({ navigation }) => {
                         textAlign: "center",
                       }}
                     >
-                      {state.normalQuestions[currentQuestion].question
-                        .replace(/&quot;/g, '"')
-                        .replace(/&#039;/g, "'")
-                        .replace(/&amp;/g, "&")}
+                      {showQuestions()}
                     </Text>
                   </Body>
                 </CardItem>
@@ -150,17 +192,29 @@ const QuestionScreen = ({ navigation }) => {
                     style={{ marginBottom: 20 }}
                     onPress={() => handleQuestions(answer, username)}
                     success={
-                      answer ===
-                        normalQuestions[currentQuestion].correct_answer && true
+                      normalMode
+                        ? answer ===
+                            normalQuestions[currentQuestion].correct_answer &&
+                          true
+                        : answer ===
+                            rushQuestions[currentQuestion].correct_answer &&
+                          true
                     }
                     danger={
-                      !(
-                        answer ===
-                        normalQuestions[currentQuestion].correct_answer
-                      ) && true
+                      normalMode
+                        ? !(
+                            answer ===
+                            normalQuestions[currentQuestion].correct_answer
+                          ) && true
+                        : !(
+                            answer ===
+                            rushQuestions[currentQuestion].correct_answer
+                          ) && true
                     }
                   >
-                    <Text>{answer.replace(/&#039;/g, "'")}</Text>
+                    <Text>
+                      {answer.replace(/&#039;/g, "'").replace(/&amp;/g, "&")}
+                    </Text>
                   </Button>
                 );
               })}
@@ -181,7 +235,7 @@ QuestionScreen.navigationOptions = ({ navigation }) => {
         transparent
         onPress={() => {
           handleExitGame();
-          navigation.navigate("Home");
+          navigation.popToTop();
         }}
       >
         <Text>Back</Text>

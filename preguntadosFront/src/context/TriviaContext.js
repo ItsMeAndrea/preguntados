@@ -10,12 +10,15 @@ const triviaReducer = (state, action) => {
         ...state,
         normalQuestions: action.payload,
         isLoading: false,
-        isGameOver: false,
       };
     case "exit_game":
-      return { isLoading: true };
-    case "game_over":
-      return { ...state, isGameOver: true };
+      return {
+        isLoading: true,
+        normalQuestions: [{ question: "" }],
+        rushQuestions: [{ question: "" }],
+      };
+    case "get_rush_questions":
+      return { ...state, rushQuestions: action.payload, isLoading: false };
 
     default:
       return state;
@@ -27,16 +30,16 @@ const getNormalQuestions = (dispatch) => async () => {
   dispatch({ type: "get_normal_questions", payload: response.data.results });
 };
 
+const getRushQuestions = (dispatch) => async () => {
+  const response = await triviaApi.get("?amount=50&type=multiple");
+  dispatch({ type: "get_rush_questions", payload: response.data.results });
+};
+
 const handleExitGame = (dispatch) => () => {
   dispatch({ type: "exit_game" });
 };
 
-const handleGameOver = (dispatch) => () => {
-  dispatch({ type: "game_over" });
-};
-
 const addToLeaderboard = (dispatch) => async ({ username, time }) => {
-  console.log(username, time, "data");
   try {
     const response = await preguntadosApi.post(
       "/api/v1/leaderboard/addNormal",
@@ -55,6 +58,10 @@ const addToLeaderboard = (dispatch) => async ({ username, time }) => {
 
 export const { Provider, Context } = createDataContext(
   triviaReducer,
-  { getNormalQuestions, handleExitGame, handleGameOver, addToLeaderboard },
-  { normalQuestions: [{}], isLoading: true }
+  { getNormalQuestions, handleExitGame, addToLeaderboard, getRushQuestions },
+  {
+    isLoading: true,
+    normalQuestions: [{ question: "" }],
+    rushQuestions: [{ question: "" }],
+  }
 );
