@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "engines": {
+    "node": "12.18.3"
+  },
   "scripts": {
     "create-dev-tables": "babel-node ./app/db/dev/dbConnection createAllTables",
     "start": "nodemon --watch . --exec babel-node -- index",
