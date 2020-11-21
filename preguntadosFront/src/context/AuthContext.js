@@ -16,7 +16,7 @@ const authReducer = (state, action) => {
     case "clear_error_message":
       return { ...state, errorMessage: "" };
     case "signout":
-      return { token: null, errorMessage: "" };
+      return { token: null, username: null, errorMessage: "" };
     default:
       return state;
   }
@@ -78,8 +78,6 @@ const login = (dispatch) => async ({ email, password }) => {
     } catch (error) {
       console.log(error);
     }
-
-    console.log(response.data.data, "login data");
 
     dispatch({ type: "signin", payload: response.data.data });
     navigate("Home");

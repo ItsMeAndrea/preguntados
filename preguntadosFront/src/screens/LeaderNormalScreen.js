@@ -19,6 +19,7 @@ const LeaderNormalScreen = ({ navigation }) => {
     state: { isLoading, normalLeaderboard },
     handleExitGame,
   } = useContext(TriviaContext);
+
   if (isLoading) {
     return <Spinner color="blue" style={{ alignSelf: "center" }} />;
   }
@@ -39,7 +40,7 @@ const LeaderNormalScreen = ({ navigation }) => {
               <Text>Username</Text>
             </Col>
             <Col>
-              <Text style={{ alignSelf: "flex-end" }}>Time</Text>
+              <Text style={{ alignSelf: "flex-end" }}>Questions</Text>
             </Col>
           </Row>
           <Row>
@@ -59,7 +60,7 @@ const LeaderNormalScreen = ({ navigation }) => {
                       }}
                     >
                       <Text>{data.username}</Text>
-                      <Text>{`${data.time.toFixed(2)} ''`}</Text>
+                      <Text>{data.questions}</Text>
                     </View>
                   </ListItem>
                 ))}
@@ -74,6 +75,7 @@ const LeaderNormalScreen = ({ navigation }) => {
 
 LeaderNormalScreen.navigationOptions = ({ navigation }) => {
   const handleExitGame = navigation.getParam("handleExitGame");
+
   return {
     headerLeft: () => (
       <Button

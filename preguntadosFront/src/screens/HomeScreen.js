@@ -1,16 +1,18 @@
-import React, { useContext, useState } from "react";
-import { Text, Button, Container, Content, Icon } from "native-base";
-import { StyleSheet, TouchableOpacity } from "react-native";
+import React, { useContext } from "react";
+import { Text, Button, Container, Content } from "native-base";
+import { StyleSheet } from "react-native";
 
 import { Context as AuthContext } from "../context/AuthContext";
 import { Context as TriviaContext } from "../context/TriviaContext";
-import { set } from "react-native-reanimated";
 
 const HomeScreen = ({ navigation }) => {
   const { signout } = useContext(AuthContext);
-  const { getNormalQuestions, getRushQuestions, getLeaderboard } = useContext(
-    TriviaContext
-  );
+  const {
+    getNormalQuestions,
+    getRushQuestions,
+    getNormalLeaderboard,
+    getRushLeaderboard,
+  } = useContext(TriviaContext);
 
   return (
     <Container style={{ flex: 1 }}>
@@ -51,7 +53,7 @@ const HomeScreen = ({ navigation }) => {
           style={{ marginHorizontal: 20, marginBottom: 20 }}
           success
           onPress={() => {
-            getLeaderboard();
+            getNormalLeaderboard();
             navigation.navigate("LeaderNormal");
           }}
         >
@@ -63,7 +65,7 @@ const HomeScreen = ({ navigation }) => {
           style={{ marginHorizontal: 20, marginBottom: 20 }}
           success
           onPress={() => {
-            getLeaderboard();
+            getRushLeaderboard();
             navigation.navigate("LeaderRush");
           }}
         >
