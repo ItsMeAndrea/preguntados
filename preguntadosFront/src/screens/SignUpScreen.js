@@ -11,11 +11,11 @@ import {
   H2,
   Label,
 } from "native-base";
-import { StyleSheet } from "react-native";
 
 import NavLink from "../components/NavLink";
 
 import { Context as AuthContext } from "../context/AuthContext";
+
 const SignUpScreen = () => {
   const { signin, state, clearErrorMessage } = useContext(AuthContext);
   const [email, setEmail] = useState("");
@@ -97,5 +97,3 @@ SignUpScreen.navigationOptions = {
 };
 
 export default SignUpScreen;
-
-const styles = StyleSheet.create({});

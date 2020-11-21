@@ -8,25 +8,31 @@ import {
   Button,
   Text,
   Spinner,
-  Icon,
 } from "native-base";
 import Timer from "react-compound-timer";
 import { Grid, Row, Col } from "react-native-easy-grid";
-import { StyleSheet } from "react-native";
 
 import { Context as TriviaContext } from "../context/TriviaContext";
 import { Context as AuthContext } from "../context/AuthContext";
 
 const QuestionScreen = ({ navigation }) => {
+  //Del AuthContext se obtiene el username para agregar los puntos
+  // a la db
   const {
     state: { username },
   } = useContext(AuthContext);
+
+  // Del TriviaContext se obtiene el state de la aplicacion, y las funciones
+  // para: salir del juego, añadir al normal leaderboard, añadir al
+  // rush leaderboard
   const {
     state,
     handleExitGame,
     addToNormalLeaderboard,
     addToRushLeaderboard,
   } = useContext(TriviaContext);
+
+  //Se declaran los estados iniciales de la vista
   const { normalQuestions, isLoading, rushQuestions } = state;
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [stoptimer, setStopTimer] = useState("");
@@ -34,18 +40,28 @@ const QuestionScreen = ({ navigation }) => {
   const [updateTime, setUpdateTime] = useState(0);
   const [addTime, setAddTime] = useState("");
 
+  //Se obtienen los parametros de la navegacion
   const normalMode = navigation.getParam("normalMode");
 
+  //El useEffect se utiliza para ejecutar una funcion antes de que
+  // se renderice la vista. En este caso se usa para pasar la funcion
+  // handleExitGame al header a traves de los parametros de navegacion
+  // para poder utilizar el boton de "Back" (VER AL FINAL)
   useEffect(() => {
     navigation.navigate("Question", { handleExitGame });
   }, []);
 
+  //Evalua si se esta cargando la data, mientras se carga se muestra
+  //un Spinner
   if (isLoading) {
     return <Spinner color="blue" style={{ alignSelf: "center" }} />;
   }
 
+  //Devuelve el array de las respuesta
   const handleAnswers = () => {
+    //Si ya se cargo la data
     if (!isLoading) {
+      // Se evalua el modo de juego y se obtienen las respuestas respectivas
       const correctAnwer = normalMode
         ? normalQuestions[currentQuestion].correct_answer
         : rushQuestions[currentQuestion].correct_answer;
@@ -53,8 +69,10 @@ const QuestionScreen = ({ navigation }) => {
         ? normalQuestions[currentQuestion].incorrect_answers
         : rushQuestions[currentQuestion].incorrect_answers;
 
+      //Se agrega la respuesta correcta al array de respuestas incorrectas
       const answersArray = [...incorrectAnswers, correctAnwer];
 
+      //Ordena de forma random el array
       for (let i = answersArray.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [answersArray[i], answersArray[j]] = [answersArray[j], answersArray[i]];
@@ -64,6 +82,7 @@ const QuestionScreen = ({ navigation }) => {
     }
   };
 
+  //Evalua la respuesta escogida con la correcta
   const checkAnswer = (answer) => {
     if (normalMode) {
       if (answer === normalQuestions[currentQuestion].correct_answer) {
@@ -80,39 +99,70 @@ const QuestionScreen = ({ navigation }) => {
     }
   };
 
+  //Maneja el tiempo en el modo Rush
   const handleRushMode = () => {
+    //Pregunta actual
     const numberQuestion = currentQuestion + 1;
+    //Se obtiene el tiempo del timer
     setUpdateTime(getActualTime());
 
+    //Si la pregunta es multiplo de 5, se agregan 10s al timer
     if (numberQuestion % 5 === 0) {
       addTime(updateTime + 10 * 1000);
     }
   };
 
+  //Maneja lo que pasa cuando se contesta una pregunta
   const handleQuestions = (answer) => {
+    //Si es correcto true, si no false
     const isAnswerCorrect = checkAnswer(answer);
-    if (isAnswerCorrect) {
-      if (normalMode) {
-        if (currentQuestion === 9) {
-          console.log("GANASTE");
-          const gameTime = (60 * 1000 - getActualTime()) / 1000;
-          console.log(typeof gameTime);
 
-          addToNormalLeaderboard({ username, time: gameTime });
+    //Evalua si la respuesta es correcta
+    if (isAnswerCorrect) {
+      //Evalua si es modo Normal
+      if (normalMode) {
+        //Evalua si se alcanzaron las 10 pregunta. Se gana el juego
+        if (currentQuestion === 9) {
+          //Se envian los datos a la db
+          addToNormalLeaderboard({
+            username,
+            questions: currentQuestion + 1,
+            gameWon: true,
+          });
+          //Si no se ha llegado a las 10 pregunta, va aumentado el
+          //contador de currentQuestion
         } else {
           setCurrentQuestion(currentQuestion + 1);
         }
+        //Si es Modo Rush, aumenta el contador y ejecuta la funcion que
+        //aumenta el tiempo
       } else {
         setCurrentQuestion(currentQuestion + 1);
         handleRushMode();
       }
+      //Si la respuesta es incorrecta
     } else {
-      stoptimer();
-      addToRushLeaderboard({ username, questions: currentQuestion });
-      console.log("PERDISTE wrong");
+      //Evalua si es Modo Normal
+      if (normalMode) {
+        //Detiene el timer y se envian los datos a la db
+        stoptimer();
+        addToNormalLeaderboard({
+          username,
+          questions: currentQuestion,
+          gameWon: false,
+        });
+
+        //Si es Modo Rush
+      } else {
+        //Detiene el timer y se envian los datos a la db
+        stoptimer();
+        addToRushLeaderboard({ username, questions: currentQuestion });
+      }
     }
   };
 
+  //Evalua si el juego es Normal o Rush y le da formato a las preguntas
+  // devuelve el string de la pregunta
   const showQuestions = () => {
     if (normalMode) {
       return normalQuestions[currentQuestion].question
@@ -253,5 +303,3 @@ QuestionScreen.navigationOptions = ({ navigation }) => {
 };
 
 export default QuestionScreen;
-
-const styles = StyleSheet.create({});

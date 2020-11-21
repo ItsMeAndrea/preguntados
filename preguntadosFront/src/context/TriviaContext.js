@@ -19,11 +19,16 @@ const triviaReducer = (state, action) => {
       };
     case "get_rush_questions":
       return { ...state, rushQuestions: action.payload, isLoading: false };
-    case "get_leaderboard":
+    case "get_normal_leaderboard":
       return {
         ...state,
-        normalLeaderboard: action.payload.normalLeaderboard,
-        rushLeaderboard: action.payload.rushLeaderboard,
+        normalLeaderboard: action.payload,
+        isLoading: false,
+      };
+    case "get_rush_leaderboard":
+      return {
+        ...state,
+        rushLeaderboard: action.payload,
         isLoading: false,
       };
     default:
@@ -45,25 +50,28 @@ const handleExitGame = (dispatch) => () => {
   dispatch({ type: "exit_game" });
 };
 
-const addToNormalLeaderboard = (dispatch) => async ({ username, time }) => {
+const addToNormalLeaderboard = (dispatch) => async ({
+  username,
+  questions,
+  gameWon,
+}) => {
   try {
     const response = await preguntadosApi.post(
       "/api/v1/leaderboard/addNormal",
       {
         username,
-        time,
+        questions,
       }
     );
 
     dispatch({ type: "exit_game" });
-    navigate("Results", { gameWon: true });
+    navigate("Results", { gameWon });
   } catch (error) {
     console.log(error.response.data, "error");
   }
 };
 
 const addToRushLeaderboard = (dispatch) => async ({ username, questions }) => {
-  console.log(username, questions, "rush data");
   try {
     const response = await preguntadosApi.post("/api/v1/leaderboard/addRush", {
       username,
@@ -76,20 +84,25 @@ const addToRushLeaderboard = (dispatch) => async ({ username, questions }) => {
   }
 };
 
-const getLeaderboard = (dispatch) => async () => {
+const getNormalLeaderboard = (dispatch) => async () => {
   try {
-    const normalResponse = await preguntadosApi.get(
-      "/api/v1/leaderboard/getNormal"
-    );
-    const rushResponse = await preguntadosApi.get(
-      "/api/v1/leaderboard/getRush"
-    );
+    const response = await preguntadosApi.get("/api/v1/leaderboard/getNormal");
+    console.log(response.data);
     dispatch({
-      type: "get_leaderboard",
-      payload: {
-        normalLeaderboard: normalResponse.data.data,
-        rushLeaderboard: rushResponse.data.data,
-      },
+      type: "get_normal_leaderboard",
+      payload: response.data.data,
+    });
+  } catch (error) {
+    console.log(error.response.data, "error");
+  }
+};
+
+const getRushLeaderboard = (dispatch) => async () => {
+  try {
+    const response = await preguntadosApi.get("/api/v1/leaderboard/getRush");
+    dispatch({
+      type: "get_rush_leaderboard",
+      payload: response.data.data,
     });
   } catch (error) {
     console.log(error.response.data, "error");
@@ -104,12 +117,12 @@ export const { Provider, Context } = createDataContext(
     addToNormalLeaderboard,
     addToRushLeaderboard,
     getRushQuestions,
-    getLeaderboard,
+    getNormalLeaderboard,
+    getRushLeaderboard,
   },
   {
     isLoading: true,
     normalQuestions: [{ question: "" }],
     rushQuestions: [{ question: "" }],
-    normalLeaderboard: [],
   }
 );
