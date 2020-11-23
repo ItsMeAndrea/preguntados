@@ -41,7 +41,7 @@ const QuestionScreen = ({ navigation }) => {
   const [addTime, setAddTime] = useState("");
 
   //Se obtienen los parametros de la navegacion
-  const normalMode = navigation.getParam("normalMode");
+  const gameMode = navigation.getParam("gameMode");
 
   //El useEffect se utiliza para ejecutar una funcion antes de que
   // se renderice la vista. En este caso se usa para pasar la funcion
@@ -61,41 +61,66 @@ const QuestionScreen = ({ navigation }) => {
   const handleAnswers = () => {
     //Si ya se cargo la data
     if (!isLoading) {
-      // Se evalua el modo de juego y se obtienen las respuestas respectivas
-      const correctAnwer = normalMode
-        ? normalQuestions[currentQuestion].correct_answer
-        : rushQuestions[currentQuestion].correct_answer;
-      const incorrectAnswers = normalMode
-        ? normalQuestions[currentQuestion].incorrect_answers
-        : rushQuestions[currentQuestion].incorrect_answers;
+      let correctAnwer = "",
+        incorrectAnswers = [],
+        answersArray = [];
+      switch (gameMode) {
+        case "normal":
+          // Se evalua el modo de juego y se obtienen las respuestas respectivas
+          correctAnwer = normalQuestions[currentQuestion].correct_answer;
+          incorrectAnswers = normalQuestions[currentQuestion].incorrect_answers;
 
-      //Se agrega la respuesta correcta al array de respuestas incorrectas
-      const answersArray = [...incorrectAnswers, correctAnwer];
+          //Se agrega la respuesta correcta al array de respuestas incorrectas
+          answersArray = [...incorrectAnswers, correctAnwer];
 
-      //Ordena de forma random el array
-      for (let i = answersArray.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [answersArray[i], answersArray[j]] = [answersArray[j], answersArray[i]];
+          //Ordena de forma random el array
+          for (let i = answersArray.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [answersArray[i], answersArray[j]] = [
+              answersArray[j],
+              answersArray[i],
+            ];
+          }
+
+          return answersArray;
+
+        case "rush":
+          // Se evalua el modo de juego y se obtienen las respuestas respectivas
+          correctAnwer = rushQuestions[currentQuestion].correct_answer;
+          incorrectAnswers = rushQuestions[currentQuestion].incorrect_answers;
+
+          //Se agrega la respuesta correcta al array de respuestas incorrectas
+          answersArray = [...incorrectAnswers, correctAnwer];
+
+          //Ordena de forma random el array
+          for (let i = answersArray.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [answersArray[i], answersArray[j]] = [
+              answersArray[j],
+              answersArray[i],
+            ];
+          }
+
+          return answersArray;
+
+        case "multi":
+          console.log("multi");
+          break;
+        default:
+          gameMode;
       }
-
-      return answersArray;
     }
   };
 
   //Evalua la respuesta escogida con la correcta
   const checkAnswer = (answer) => {
-    if (normalMode) {
-      if (answer === normalQuestions[currentQuestion].correct_answer) {
-        return true;
-      } else {
-        return false;
-      }
-    } else {
-      if (answer === rushQuestions[currentQuestion].correct_answer) {
-        return true;
-      } else {
-        return false;
-      }
+    switch (gameMode) {
+      case "normal":
+        return answer === normalQuestions[currentQuestion].correct_answer;
+      case "rush":
+        return answer === rushQuestions[currentQuestion].correct_answer;
+      case "multi":
+        console.log("multi answers");
     }
   };
 
@@ -119,48 +144,47 @@ const QuestionScreen = ({ navigation }) => {
 
     //Evalua si la respuesta es correcta
     if (isAnswerCorrect) {
-      //Evalua si es modo Normal
-      if (normalMode) {
-        //Evalua si se alcanzaron las 10 pregunta. Se gana el juego
-        if (currentQuestion === 9) {
-          //Se envian los datos a la db
+      switch (gameMode) {
+        case "normal":
+          if (currentQuestion === 9) {
+            //Se envian los datos a la db
+            stoptimer();
+
+            addToNormalLeaderboard({
+              username,
+              questions: currentQuestion + 1,
+              gameWon: true,
+            });
+            //Si no se ha llegado a las 10 pregunta, va aumentado el
+            //contador de currentQuestion
+          } else {
+            setCurrentQuestion(currentQuestion + 1);
+          }
+          break;
+        case "rush":
+          setCurrentQuestion(currentQuestion + 1);
+          handleRushMode();
+          break;
+      }
+    } else {
+      switch (gameMode) {
+        case "normal":
+          stoptimer();
           addToNormalLeaderboard({
             username,
-            questions: currentQuestion + 1,
-            gameWon: true,
+            questions: currentQuestion,
+            gameWon: false,
           });
-          //Si no se ha llegado a las 10 pregunta, va aumentado el
-          //contador de currentQuestion
-        } else {
-          setCurrentQuestion(currentQuestion + 1);
-        }
-        //Si es Modo Rush, aumenta el contador y ejecuta la funcion que
-        //aumenta el tiempo
-      } else {
-        setCurrentQuestion(currentQuestion + 1);
-        handleRushMode();
-      }
-      //Si la respuesta es incorrecta
-    } else {
-      //Evalua si es Modo Normal
-      if (normalMode) {
-        //Detiene el timer y se envian los datos a la db
-        stoptimer();
-        addToNormalLeaderboard({
-          username,
-          questions: currentQuestion,
-          gameWon: false,
-        });
+          break;
 
-        //Si es Modo Rush
-      } else {
-        //Detiene el timer y se envian los datos a la db
-        stoptimer();
-        addToRushLeaderboard({
-          username,
-          questions: currentQuestion,
-          gameWon: false,
-        });
+        case "rush":
+          stoptimer();
+          addToRushLeaderboard({
+            username,
+            questions: currentQuestion,
+            gameWon: false,
+          });
+          break;
       }
     }
   };
@@ -168,20 +192,30 @@ const QuestionScreen = ({ navigation }) => {
   //Evalua si el juego es Normal o Rush y le da formato a las preguntas
   // devuelve el string de la pregunta
   const showQuestions = () => {
-    if (normalMode) {
-      return normalQuestions[currentQuestion].question
-        .replace(/&quot;/g, '"')
-        .replace(/&#039;/g, "'")
-        .replace(/&amp;/g, "&")
-        .replace(/&oacute;/g, "ó")
-        .replace(/&eacute;/g, "é");
-    } else {
-      return rushQuestions[currentQuestion].question
-        .replace(/&quot;/g, '"')
-        .replace(/&#039;/g, "'")
-        .replace(/&amp;/g, "&")
-        .replace(/&oacute;/g, "ó")
-        .replace(/&eacute;/g, "é");
+    switch (gameMode) {
+      case "normal":
+        return normalQuestions[currentQuestion].question
+          .replace(/&quot;/g, '"')
+          .replace(/&#039;/g, "'")
+          .replace(/&amp;/g, "&")
+          .replace(/&oacute;/g, "ó")
+          .replace(/&eacute;/g, "é");
+      case "rush":
+        return rushQuestions[currentQuestion].question
+          .replace(/&quot;/g, '"')
+          .replace(/&#039;/g, "'")
+          .replace(/&amp;/g, "&")
+          .replace(/&oacute;/g, "ó")
+          .replace(/&eacute;/g, "é");
+    }
+  };
+
+  const setGameTime = () => {
+    switch (gameMode) {
+      case "normal":
+        return 60 * 1000;
+      case "rush":
+        return 20 * 1000;
     }
   };
 
@@ -199,7 +233,7 @@ const QuestionScreen = ({ navigation }) => {
           <Row size={1}>
             <Col style={{ alignSelf: "center" }}>
               <Timer
-                initialTime={normalMode ? 60 * 1000 : 20 * 1000}
+                initialTime={setGameTime()}
                 timeToUpdate={10}
                 direction="backward"
                 checkpoints={[
@@ -253,8 +287,8 @@ const QuestionScreen = ({ navigation }) => {
                     block
                     style={{ marginBottom: 20 }}
                     onPress={() => handleQuestions(answer, username)}
-                    /*  success={
-                      normalMode
+                    success={
+                      gameMode === "normal"
                         ? answer ===
                             normalQuestions[currentQuestion].correct_answer &&
                           true
@@ -263,7 +297,7 @@ const QuestionScreen = ({ navigation }) => {
                           true
                     }
                     danger={
-                      normalMode
+                      gameMode === "normal"
                         ? !(
                             answer ===
                             normalQuestions[currentQuestion].correct_answer
@@ -272,7 +306,7 @@ const QuestionScreen = ({ navigation }) => {
                             answer ===
                             rushQuestions[currentQuestion].correct_answer
                           ) && true
-                    } */
+                    }
                   >
                     <Text>
                       {answer.replace(/&#039;/g, "'").replace(/&amp;/g, "&")}

@@ -29,11 +29,11 @@ const HomeScreen = ({ navigation }) => {
           style={{ marginHorizontal: 20, marginBottom: 20 }}
           onPress={() => {
             getNormalQuestions();
-            navigation.navigate("Question", { normalMode: true });
+            navigation.navigate("Question", { gameMode: "normal" });
           }}
           warning
         >
-          <Text>Normal</Text>
+          <Text>Modo Normal</Text>
         </Button>
         <Button
           rounded
@@ -41,11 +41,22 @@ const HomeScreen = ({ navigation }) => {
           style={{ marginHorizontal: 20, marginBottom: 20 }}
           onPress={() => {
             getRushQuestions();
-            navigation.navigate("Question", { normalMode: false });
+            navigation.navigate("Question", { gameMode: "rush" });
           }}
           danger
         >
-          <Text>Rush</Text>
+          <Text>Modo Rush</Text>
+        </Button>
+        <Button
+          rounded
+          block
+          style={{ marginHorizontal: 20, marginBottom: 20 }}
+          onPress={() => {
+            navigation.navigate("Question", { gameMode: "multi" });
+          }}
+          info
+        >
+          <Text>Modo Multijugador</Text>
         </Button>
         <Button
           rounded

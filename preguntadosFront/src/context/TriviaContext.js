@@ -31,6 +31,12 @@ const triviaReducer = (state, action) => {
         rushLeaderboard: action.payload,
         isLoading: false,
       };
+    case "post_normalLeaderboard":
+      return {
+        normalQuestions: [{ question: "" }],
+        rushQuestions: [{ question: "" }],
+        isLoading: false,
+      };
     default:
       return state;
   }
@@ -56,6 +62,7 @@ const addToNormalLeaderboard = (dispatch) => async ({
   gameWon,
 }) => {
   try {
+    dispatch({ type: "exit_game" });
     const response = await preguntadosApi.post(
       "/api/v1/leaderboard/addNormal",
       {
@@ -63,8 +70,7 @@ const addToNormalLeaderboard = (dispatch) => async ({
         questions,
       }
     );
-
-    dispatch({ type: "exit_game" });
+    dispatch({ type: "post_normalLeaderboard" });
     navigate("Results", { gameWon, questions });
   } catch (error) {
     console.log(error.response.data, "error");

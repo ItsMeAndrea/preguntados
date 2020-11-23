@@ -1,10 +1,19 @@
-import React from "react";
-import { Button, Container, Content, Text, H1 } from "native-base";
+import React, { useContext } from "react";
+import { Button, Container, Content, Text, H1, Spinner } from "native-base";
 import { Share } from "react-native";
+
+import { Context as TriviaContext } from "../context/TriviaContext";
 
 const ResultsScreen = ({ navigation }) => {
   const gameWon = navigation.getParam("gameWon");
   const questions = navigation.getParam("questions");
+  const {
+    state: { isLoading },
+  } = useContext(TriviaContext);
+
+  if (isLoading) {
+    return <Spinner color="blue" style={{ alignSelf: "center" }} />;
+  }
 
   const onShare = async () => {
     try {
