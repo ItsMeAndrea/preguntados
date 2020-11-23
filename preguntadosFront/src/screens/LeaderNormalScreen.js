@@ -24,6 +24,7 @@ const LeaderNormalScreen = ({ navigation }) => {
     return <Spinner color="blue" style={{ alignSelf: "center" }} />;
   }
 
+  //Ejecuta las funciones antes de renderizar el contenido
   useEffect(() => {
     navigation.navigate("LeaderNormal", { handleExitGame });
   }, []);
@@ -73,6 +74,7 @@ const LeaderNormalScreen = ({ navigation }) => {
   );
 };
 
+//navigationOptions viene de react-navigation
 LeaderNormalScreen.navigationOptions = ({ navigation }) => {
   const handleExitGame = navigation.getParam("handleExitGame");
 

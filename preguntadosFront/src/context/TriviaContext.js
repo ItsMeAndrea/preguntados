@@ -65,20 +65,24 @@ const addToNormalLeaderboard = (dispatch) => async ({
     );
 
     dispatch({ type: "exit_game" });
-    navigate("Results", { gameWon });
+    navigate("Results", { gameWon, questions });
   } catch (error) {
     console.log(error.response.data, "error");
   }
 };
 
-const addToRushLeaderboard = (dispatch) => async ({ username, questions }) => {
+const addToRushLeaderboard = (dispatch) => async ({
+  username,
+  questions,
+  gameWon,
+}) => {
   try {
     const response = await preguntadosApi.post("/api/v1/leaderboard/addRush", {
       username,
       questions,
     });
     dispatch({ type: "exit_game" });
-    navigate("Results", { gameWon: false });
+    navigate("Results", { gameWon, questions });
   } catch (error) {
     console.log(error.response.data, "error");
   }
