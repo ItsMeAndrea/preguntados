@@ -253,7 +253,7 @@ const QuestionScreen = ({ navigation }) => {
                     block
                     style={{ marginBottom: 20 }}
                     onPress={() => handleQuestions(answer, username)}
-                    success={
+                    /*  success={
                       normalMode
                         ? answer ===
                             normalQuestions[currentQuestion].correct_answer &&
@@ -272,7 +272,7 @@ const QuestionScreen = ({ navigation }) => {
                             answer ===
                             rushQuestions[currentQuestion].correct_answer
                           ) && true
-                    }
+                    } */
                   >
                     <Text>
                       {answer.replace(/&#039;/g, "'").replace(/&amp;/g, "&")}
