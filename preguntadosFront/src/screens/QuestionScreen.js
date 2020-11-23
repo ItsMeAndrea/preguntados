@@ -156,7 +156,11 @@ const QuestionScreen = ({ navigation }) => {
       } else {
         //Detiene el timer y se envian los datos a la db
         stoptimer();
-        addToRushLeaderboard({ username, questions: currentQuestion });
+        addToRushLeaderboard({
+          username,
+          questions: currentQuestion,
+          gameWon: false,
+        });
       }
     }
   };
