@@ -105,7 +105,7 @@ const addToRushLeaderboard = (dispatch) => async ({
 const getNormalLeaderboard = (dispatch) => async () => {
   try {
     const response = await preguntadosApi.get("/api/v1/leaderboard/getNormal");
-    console.log(response.data);
+
     dispatch({
       type: "get_normal_leaderboard",
       payload: response.data.data,
@@ -128,7 +128,6 @@ const getRushLeaderboard = (dispatch) => async () => {
 };
 
 const createMulltiplayer = (dispatch) => async ({ game_code }) => {
-  console.log(game_code, "game codefrom context");
   try {
     const response = await preguntadosApi.post("/api/v1/multiplayer/addGame", {
       game_code,
@@ -172,7 +171,6 @@ const addPlayerTwo = (dispatch) => async ({
 };
 
 const getGameByUser = (dispatch) => async ({ username }) => {
-  console.log(username, "username");
   try {
     const response = await preguntadosApi.get(
       `/api/v1/multiplayer/getGameByUser/${username}`

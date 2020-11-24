@@ -138,8 +138,6 @@ const QuestionScreen = ({ navigation }) => {
                 questions_one: currentQuestion + 1,
               });
               handleExitGame();
-
-              console.log("add player one");
             }
             addPlayerTwo({
               game_code: gameCode,
@@ -147,7 +145,6 @@ const QuestionScreen = ({ navigation }) => {
               questions_two: currentQuestion + 1,
             });
             handleExitGame();
-            console.log("add player two");
           }
           //Se envian los datos a la db
           addToNormalLeaderboard({
@@ -180,7 +177,6 @@ const QuestionScreen = ({ navigation }) => {
               questions_one: currentQuestion,
             });
             handleExitGame();
-            console.log("add lose player one");
           } else {
             addPlayerTwo({
               game_code: gameCode,
@@ -188,7 +184,6 @@ const QuestionScreen = ({ navigation }) => {
               questions_two: currentQuestion,
             });
             handleExitGame();
-            console.log("add lose player two");
           }
         }
         //Detiene el timer y se envian los datos a la db

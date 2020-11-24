@@ -75,7 +75,6 @@ const MultiplayerResultScreen = ({ navigation }) => {
         <List>
           {multiplayerGame.map((game, index) => (
             <ListItem key={index}>
-              {console.log(game)}
               <View
                 style={{
                   flex: 1,
