@@ -16,6 +16,8 @@ import SignUpScreen from "./src/screens/SignUpScreen";
 import ResolveAuthScreen from "./src/screens/ResolveAuthScreen";
 import QuestionScreen from "./src/screens/QuestionScreen";
 import ResultsScreen from "./src/screens/ResultsScreen";
+import MultiPlayerScreen from "./src/screens/MultiPlayerScreen";
+import MultiplayerResultScreen from "./src/screens/MultiplayerResultScreen";
 
 const switchNavigator = createSwitchNavigator({
   ResolveAuth: ResolveAuthScreen,
@@ -29,6 +31,8 @@ const switchNavigator = createSwitchNavigator({
     Results: ResultsScreen,
     LeaderNormal: LeaderNormalScreen,
     LeaderRush: LeaderRushScreen,
+    MultiPlayer: MultiPlayerScreen,
+    MultiplayerResults: MultiplayerResultScreen,
   }),
 });
 

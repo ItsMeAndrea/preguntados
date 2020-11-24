@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useContext, useEffect, useState } from "react";
 import {
   Container,
@@ -30,6 +31,8 @@ const QuestionScreen = ({ navigation }) => {
     handleExitGame,
     addToNormalLeaderboard,
     addToRushLeaderboard,
+    addPlayerOne,
+    addPlayerTwo,
   } = useContext(TriviaContext);
 
   //Se declaran los estados iniciales de la vista
@@ -42,6 +45,9 @@ const QuestionScreen = ({ navigation }) => {
 
   //Se obtienen los parametros de la navegacion
   const normalMode = navigation.getParam("normalMode");
+  const multiplayer = navigation.getParam("multiplayer");
+  const playerOne = navigation.getParam("playerOne");
+  const gameCode = navigation.getParam("gameCode");
 
   //El useEffect se utiliza para ejecutar una funcion antes de que
   // se renderice la vista. En este caso se usa para pasar la funcion
@@ -123,12 +129,34 @@ const QuestionScreen = ({ navigation }) => {
       if (normalMode) {
         //Evalua si se alcanzaron las 10 pregunta. Se gana el juego
         if (currentQuestion === 9) {
+          //Evalua si el juego es multijuegador
+          if (multiplayer) {
+            if (playerOne) {
+              addPlayerOne({
+                game_code: gameCode,
+                player_one: username,
+                questions_one: currentQuestion + 1,
+              });
+              handleExitGame();
+
+              console.log("add player one");
+            }
+            addPlayerTwo({
+              game_code: gameCode,
+              player_two: username,
+              questions_two: currentQuestion + 1,
+            });
+            handleExitGame();
+            console.log("add player two");
+          }
           //Se envian los datos a la db
           addToNormalLeaderboard({
             username,
             questions: currentQuestion + 1,
             gameWon: true,
           });
+          handleExitGame();
+
           //Si no se ha llegado a las 10 pregunta, va aumentado el
           //contador de currentQuestion
         } else {
@@ -144,6 +172,25 @@ const QuestionScreen = ({ navigation }) => {
     } else {
       //Evalua si es Modo Normal
       if (normalMode) {
+        if (multiplayer) {
+          if (playerOne) {
+            addPlayerOne({
+              game_code: gameCode,
+              player_one: username,
+              questions_one: currentQuestion,
+            });
+            handleExitGame();
+            console.log("add lose player one");
+          } else {
+            addPlayerTwo({
+              game_code: gameCode,
+              player_two: username,
+              questions_two: currentQuestion,
+            });
+            handleExitGame();
+            console.log("add lose player two");
+          }
+        }
         //Detiene el timer y se envian los datos a la db
         stoptimer();
         addToNormalLeaderboard({
@@ -205,8 +252,10 @@ const QuestionScreen = ({ navigation }) => {
                 checkpoints={[
                   {
                     time: 0,
-                    callback: () =>
-                      navigation.navigate("Results", { gameWon: false }),
+                    callback: () => {
+                      navigation.navigate("Results", { gameWon: false });
+                      handleExitGame();
+                    },
                   },
                 ]}
               >
@@ -253,7 +302,7 @@ const QuestionScreen = ({ navigation }) => {
                     block
                     style={{ marginBottom: 20 }}
                     onPress={() => handleQuestions(answer, username)}
-                    /*  success={
+                    success={
                       normalMode
                         ? answer ===
                             normalQuestions[currentQuestion].correct_answer &&
@@ -272,7 +321,7 @@ const QuestionScreen = ({ navigation }) => {
                             answer ===
                             rushQuestions[currentQuestion].correct_answer
                           ) && true
-                    } */
+                    }
                   >
                     <Text>
                       {answer.replace(/&#039;/g, "'").replace(/&amp;/g, "&")}

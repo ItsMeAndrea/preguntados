@@ -1,18 +1,28 @@
-import React, { useContext } from "react";
-import { Text, Button, Container, Content } from "native-base";
+import React, { useContext, useEffect } from "react";
+import { Text, Button, Container, Content, Badge } from "native-base";
 import { StyleSheet } from "react-native";
+
+import Icon from "../components/Icon";
 
 import { Context as AuthContext } from "../context/AuthContext";
 import { Context as TriviaContext } from "../context/TriviaContext";
 
 const HomeScreen = ({ navigation }) => {
-  const { signout } = useContext(AuthContext);
+  const {
+    signout,
+    state: { username },
+  } = useContext(AuthContext);
   const {
     getNormalQuestions,
     getRushQuestions,
     getNormalLeaderboard,
     getRushLeaderboard,
+    getGameByUser,
   } = useContext(TriviaContext);
+
+  useEffect(() => {
+    navigation.navigate("Home", { getGameByUser, username });
+  }, []);
 
   return (
     <Container style={{ flex: 1 }}>
@@ -51,6 +61,17 @@ const HomeScreen = ({ navigation }) => {
           rounded
           block
           style={{ marginHorizontal: 20, marginBottom: 20 }}
+          info
+          onPress={() => {
+            navigation.navigate("MultiPlayer");
+          }}
+        >
+          <Text>Multijugador</Text>
+        </Button>
+        <Button
+          rounded
+          block
+          style={{ marginHorizontal: 20, marginBottom: 20 }}
           success
           onPress={() => {
             getNormalLeaderboard();
@@ -71,6 +92,7 @@ const HomeScreen = ({ navigation }) => {
         >
           <Text>Rush Leaderboard</Text>
         </Button>
+
         <Button
           rounded
           block
@@ -85,8 +107,37 @@ const HomeScreen = ({ navigation }) => {
   );
 };
 
-HomeScreen.navigationOptions = {
-  headerTitle: "Preguntados",
+HomeScreen.navigationOptions = ({ navigation }) => {
+  const getGameByUser = navigation.getParam("getGameByUser");
+  const username = navigation.getParam("username");
+  const data = [
+    /*  {
+      game_code: "123",
+    },
+    { game_code: "456" }, */
+  ];
+  return {
+    headerTitle: "Preguntados",
+    headerRight: () => (
+      <Button
+        transparent
+        onPress={() => {
+          getGameByUser({ username });
+          navigation.navigate("MultiplayerResults");
+        }}
+      >
+        <Icon />
+        {/*  <Badge
+          style={{
+            marginRight: 20,
+            backgroundColor: `${data.length > 0 ? "red" : "gray"}`,
+          }}
+        >
+          <Text>{data.length}</Text>
+        </Badge> */}
+      </Button>
+    ),
+  };
 };
 
 export default HomeScreen;

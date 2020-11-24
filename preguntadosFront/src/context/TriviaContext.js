@@ -31,14 +31,28 @@ const triviaReducer = (state, action) => {
         rushLeaderboard: action.payload,
         isLoading: false,
       };
+    case "post_normal":
+      return { ...state, addingLeaderboard: false };
+    case "post_multiplayer":
+      return { ...state, isLoading: false };
+    case "get_game":
+      return {
+        ...state,
+        multiplayerGame: action.payload,
+        isLoading: false,
+      };
     default:
       return state;
   }
 };
 
 const getNormalQuestions = (dispatch) => async () => {
-  const response = await triviaApi.get("?amount=10&type=multiple");
-  dispatch({ type: "get_normal_questions", payload: response.data.results });
+  try {
+    const response = await triviaApi.get("?amount=10&type=multiple");
+    dispatch({ type: "get_normal_questions", payload: response.data.results });
+  } catch (error) {
+    console.log(error.response.data, "error");
+  }
 };
 
 const getRushQuestions = (dispatch) => async () => {
@@ -81,7 +95,7 @@ const addToRushLeaderboard = (dispatch) => async ({
       username,
       questions,
     });
-    dispatch({ type: "exit_game" });
+    dispatch({ type: "post_normal" });
     navigate("Results", { gameWon, questions });
   } catch (error) {
     console.log(error.response.data, "error");
@@ -113,6 +127,63 @@ const getRushLeaderboard = (dispatch) => async () => {
   }
 };
 
+const createMulltiplayer = (dispatch) => async ({ game_code }) => {
+  console.log(game_code, "game codefrom context");
+  try {
+    const response = await preguntadosApi.post("/api/v1/multiplayer/addGame", {
+      game_code,
+    });
+    dispatch({ type: "post_multiplayer" });
+  } catch (error) {
+    console.log(error.response.data, "error");
+  }
+};
+
+const addPlayerOne = (dispatch) => async ({
+  game_code,
+  player_one,
+  questions_one,
+}) => {
+  try {
+    const response = await preguntadosApi.put(
+      "/api/v1/multiplayer/updateGame",
+      { game_code, player_one, questions_one }
+    );
+    dispatch({ type: "update_multiplayer" });
+  } catch (error) {
+    console.log(error.response.data, "error");
+  }
+};
+
+const addPlayerTwo = (dispatch) => async ({
+  game_code,
+  player_two,
+  questions_two,
+}) => {
+  try {
+    const response = await preguntadosApi.put(
+      "/api/v1/multiplayer/updateGame",
+      { game_code, player_two, questions_two }
+    );
+    dispatch({ type: "update_multiplayer" });
+  } catch (error) {
+    console.log(error.response.data, "error");
+  }
+};
+
+const getGameByUser = (dispatch) => async ({ username }) => {
+  console.log(username, "username");
+  try {
+    const response = await preguntadosApi.get(
+      `/api/v1/multiplayer/getGameByUser/${username}`
+    );
+
+    dispatch({ type: "get_game", payload: response.data.data });
+  } catch (error) {
+    console.log(error.response.data, "error");
+  }
+};
+
 export const { Provider, Context } = createDataContext(
   triviaReducer,
   {
@@ -123,10 +194,15 @@ export const { Provider, Context } = createDataContext(
     getRushQuestions,
     getNormalLeaderboard,
     getRushLeaderboard,
+    createMulltiplayer,
+    addPlayerOne,
+    addPlayerTwo,
+    getGameByUser,
   },
   {
     isLoading: true,
     normalQuestions: [{ question: "" }],
     rushQuestions: [{ question: "" }],
+    addingLeaderboard: true,
   }
 );
