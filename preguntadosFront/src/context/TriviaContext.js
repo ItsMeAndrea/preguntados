@@ -41,6 +41,14 @@ const triviaReducer = (state, action) => {
         multiplayerGame: action.payload,
         isLoading: false,
       };
+    case "get_game_code":
+      return {
+        ...state,
+        gameInfo: action.payload,
+        gettingData: false,
+      };
+    case "no_game":
+      return { ...state, noGameAlert: action.payload, gettingData: false };
     default:
       return state;
   }
@@ -182,6 +190,17 @@ const getGameByUser = (dispatch) => async ({ username }) => {
   }
 };
 
+const getGameByCode = (dispatch) => async ({ game_code }) => {
+  try {
+    const response = await preguntadosApi.get(
+      `api/v1/multiplayer/getGame/${game_code}`
+    );
+    dispatch({ type: "get_game_code", payload: response.data.data });
+  } catch (error) {
+    console.log(error.response.data, "error");
+    dispatch({ type: "no_game", payload: error.response.data.error });
+  }
+};
 export const { Provider, Context } = createDataContext(
   triviaReducer,
   {
@@ -196,11 +215,13 @@ export const { Provider, Context } = createDataContext(
     addPlayerOne,
     addPlayerTwo,
     getGameByUser,
+    getGameByCode,
   },
   {
     isLoading: true,
     normalQuestions: [{ question: "" }],
     rushQuestions: [{ question: "" }],
     addingLeaderboard: true,
+    gettingData: true,
   }
 );

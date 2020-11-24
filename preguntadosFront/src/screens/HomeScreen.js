@@ -127,14 +127,6 @@ HomeScreen.navigationOptions = ({ navigation }) => {
         }}
       >
         <Icon />
-        {/*  <Badge
-          style={{
-            marginRight: 20,
-            backgroundColor: `${data.length > 0 ? "red" : "gray"}`,
-          }}
-        >
-          <Text>{data.length}</Text>
-        </Badge> */}
       </Button>
     ),
   };

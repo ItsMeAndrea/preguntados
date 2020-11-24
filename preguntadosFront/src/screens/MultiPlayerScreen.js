@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import {
   Text,
   Button,
@@ -8,6 +8,7 @@ import {
   Item,
   Input,
   Label,
+  Spinner,
 } from "native-base";
 import { Share, Modal, View } from "react-native";
 
@@ -16,12 +17,39 @@ import { Context as TriviaContext } from "../context/TriviaContext";
 const MultiPlayerScreen = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [inputGameCode, setInputGameCode] = useState("");
-  const { getNormalQuestions, createMulltiplayer } = useContext(TriviaContext);
+  const [isGameValid, setIsGameValid] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const {
+    getNormalQuestions,
+    createMulltiplayer,
+    getGameByCode,
+    state: { gameInfo, noGameAlert, gettingData },
+  } = useContext(TriviaContext);
+
+  const checkGame = () => {
+    console.log("checkgame", noGameAlert);
+    if (gameInfo) {
+      if (gameInfo.player_two) {
+        setIsGameValid(false);
+        setErrorMessage("El juego ya ha terminado");
+      } else {
+        setIsGameValid(true);
+      }
+    } else {
+      if (noGameAlert) {
+        setIsGameValid(false);
+        setErrorMessage(noGameAlert);
+      }
+    }
+  };
+
+  useEffect(() => {
+    checkGame();
+  }, [gameInfo, noGameAlert]);
   const generateCode = () => {
     var length = 5;
     var result = "";
-    var characters =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    var characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     var charactersLength = characters.length;
 
     for (var i = 0; i < length; i++) {
@@ -73,6 +101,12 @@ const MultiPlayerScreen = ({ navigation }) => {
     setModalVisible(false);
   };
 
+  const cleanModal = () => {
+    setErrorMessage("");
+    setInputGameCode("");
+    setModalVisible(!modalVisible);
+  };
+
   return (
     <Container>
       <Content
@@ -105,6 +139,7 @@ const MultiPlayerScreen = ({ navigation }) => {
         animationType="slide"
         transparent={true}
         visible={modalVisible}
+        onShow={() => cleanModal()}
         onRequestClose={() => {
           Alert.alert("Modal has been closed.");
         }}
@@ -135,30 +170,57 @@ const MultiPlayerScreen = ({ navigation }) => {
               width: 300,
             }}
           >
-            <Form style={{ width: 300, marginRight: 10, marginBottom: 20 }}>
+            <Form style={{ width: 300, marginRight: 10, marginBottom: 10 }}>
               <Item floatingLabel>
                 <Label>Ingresa el Codigo del Juego</Label>
                 <Input
                   value={inputGameCode}
                   keyboardType="email-address"
-                  onChangeText={(e) => setInputGameCode(e)}
+                  onChangeText={(e) => setInputGameCode(e.toUpperCase())}
                   autoCapitalize="none"
                   autoCorrect={false}
                 />
               </Item>
             </Form>
+            {isGameValid ? null : (
+              <Text style={{ color: "red", marginBottom: 20 }}>
+                {errorMessage}
+              </Text>
+            )}
+
+            {isGameValid ? (
+              <Button
+                rounded
+                block
+                success
+                onPress={() => enterCode()}
+                style={{ marginBottom: 20 }}
+              >
+                <Text>Continuar</Text>
+              </Button>
+            ) : (
+              <Button
+                rounded
+                block
+                warning
+                onPress={() => {
+                  getGameByCode({ game_code: inputGameCode });
+                }}
+                style={{ marginBottom: 20 }}
+              >
+                <Text>Validar Codigo</Text>
+              </Button>
+            )}
 
             <Button
               rounded
               block
-              style={{ marginBottom: 20 }}
-              onPress={() => setModalVisible(!modalVisible)}
+              onPress={() => {
+                setModalVisible(!modalVisible);
+              }}
               light
             >
               <Text>Volver</Text>
-            </Button>
-            <Button rounded block success onPress={() => enterCode()}>
-              <Text>Continuar</Text>
             </Button>
           </View>
         </View>
