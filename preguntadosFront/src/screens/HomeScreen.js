@@ -43,7 +43,7 @@ const HomeScreen = ({ navigation }) => {
           }}
           warning
         >
-          <Text>Normal</Text>
+          <Text>Modo Normal</Text>
         </Button>
         <Button
           rounded
@@ -55,7 +55,7 @@ const HomeScreen = ({ navigation }) => {
           }}
           danger
         >
-          <Text>Rush</Text>
+          <Text>Modo Rush</Text>
         </Button>
         <Button
           rounded
@@ -66,7 +66,7 @@ const HomeScreen = ({ navigation }) => {
             navigation.navigate("MultiPlayer");
           }}
         >
-          <Text>Multijugador</Text>
+          <Text>Modo Multijugador</Text>
         </Button>
         <Button
           rounded

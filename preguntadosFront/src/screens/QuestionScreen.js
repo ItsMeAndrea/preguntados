@@ -31,7 +31,7 @@ const QuestionScreen = ({ navigation }) => {
     handleExitGame,
     addToNormalLeaderboard,
     addToRushLeaderboard,
-    addPlayerOne,
+    createMulltiplayer,
     addPlayerTwo,
   } = useContext(TriviaContext);
 
@@ -118,6 +118,8 @@ const QuestionScreen = ({ navigation }) => {
     }
   };
 
+  console.log;
+
   //Maneja lo que pasa cuando se contesta una pregunta
   const handleQuestions = (answer) => {
     //Si es correcto true, si no false
@@ -132,27 +134,31 @@ const QuestionScreen = ({ navigation }) => {
           //Evalua si el juego es multijuegador
           if (multiplayer) {
             if (playerOne) {
-              addPlayerOne({
+              createMulltiplayer({
                 game_code: gameCode,
                 player_one: username,
                 questions_one: currentQuestion + 1,
+                gameWon: true,
+              });
+              handleExitGame();
+            } else {
+              addPlayerTwo({
+                game_code: gameCode,
+                player_two: username,
+                questions_two: currentQuestion + 1,
+                gameWon: true,
               });
               handleExitGame();
             }
-            addPlayerTwo({
-              game_code: gameCode,
-              player_two: username,
-              questions_two: currentQuestion + 1,
+          } else {
+            //Se envian los datos a la db
+            addToNormalLeaderboard({
+              username,
+              questions: currentQuestion + 1,
+              gameWon: true,
             });
             handleExitGame();
           }
-          //Se envian los datos a la db
-          addToNormalLeaderboard({
-            username,
-            questions: currentQuestion + 1,
-            gameWon: true,
-          });
-          handleExitGame();
 
           //Si no se ha llegado a las 10 pregunta, va aumentado el
           //contador de currentQuestion
@@ -171,10 +177,11 @@ const QuestionScreen = ({ navigation }) => {
       if (normalMode) {
         if (multiplayer) {
           if (playerOne) {
-            addPlayerOne({
+            createMulltiplayer({
               game_code: gameCode,
               player_one: username,
               questions_one: currentQuestion,
+              gameWon: false,
             });
             handleExitGame();
           } else {
@@ -182,18 +189,19 @@ const QuestionScreen = ({ navigation }) => {
               game_code: gameCode,
               player_two: username,
               questions_two: currentQuestion,
+              gameWon: false,
             });
             handleExitGame();
           }
+        } else {
+          //Detiene el timer y se envian los datos a la db
+          stoptimer();
+          addToNormalLeaderboard({
+            username,
+            questions: currentQuestion,
+            gameWon: false,
+          });
         }
-        //Detiene el timer y se envian los datos a la db
-        stoptimer();
-        addToNormalLeaderboard({
-          username,
-          questions: currentQuestion,
-          gameWon: false,
-        });
-
         //Si es Modo Rush
       } else {
         //Detiene el timer y se envian los datos a la db
@@ -276,7 +284,7 @@ const QuestionScreen = ({ navigation }) => {
                     <Text
                       style={{
                         alignSelf: "center",
-                        fontSize: 25,
+                        fontSize: 18,
                         textAlign: "center",
                       }}
                     >
@@ -297,7 +305,7 @@ const QuestionScreen = ({ navigation }) => {
                     block
                     style={{ marginBottom: 20 }}
                     onPress={() => handleQuestions(answer, username)}
-                    success={
+                    /* success={
                       normalMode
                         ? answer ===
                             normalQuestions[currentQuestion].correct_answer &&
@@ -316,7 +324,7 @@ const QuestionScreen = ({ navigation }) => {
                             answer ===
                             rushQuestions[currentQuestion].correct_answer
                           ) && true
-                    }
+                    } */
                   >
                     <Text>
                       {answer.replace(/&#039;/g, "'").replace(/&amp;/g, "&")}

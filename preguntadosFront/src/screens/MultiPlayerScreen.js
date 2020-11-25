@@ -59,16 +59,34 @@ const MultiPlayerScreen = ({ navigation }) => {
     return result;
   };
 
-  const shareCode = async () => {
+  const createCode = async () => {
     const gameCode = generateCode();
-    try {
+    navigation.navigate("Question", {
+      normalMode: true,
+      playerOne: true,
+      multiplayer: true,
+      gameCode,
+    });
+    getNormalQuestions();
+
+    /* try {
       const result = await Share.share({
         message: `Juguemos Preguntados a traves de este codigo: ${gameCode}`,
       });
 
       if (result.action === Share.sharedAction) {
         if (result.activityType) {
-          createMulltiplayer({ game_code: gameCode });
+          //    createMulltiplayer({ game_code: gameCode });
+          navigation.navigate("Question", {
+            normalMode: true,
+            playerOne: true,
+            multiplayer: true,
+            gameCode,
+          });
+          getNormalQuestions();
+
+          // shared with activity type of result.activityType
+        } else {
           getNormalQuestions();
 
           navigation.navigate("Question", {
@@ -77,16 +95,13 @@ const MultiPlayerScreen = ({ navigation }) => {
             multiplayer: true,
             gameCode,
           });
-
-          // shared with activity type of result.activityType
-        } else {
         }
       } else if (result.action === Share.dismissedAction) {
         // dismissed
       }
     } catch (error) {
       console.log(error);
-    }
+    } */
   };
 
   const enterCode = () => {
@@ -121,7 +136,7 @@ const MultiPlayerScreen = ({ navigation }) => {
           block
           style={{ marginHorizontal: 20, marginBottom: 20 }}
           success
-          onPress={() => shareCode()}
+          onPress={() => createCode()}
         >
           <Text>Crear Juego</Text>
         </Button>

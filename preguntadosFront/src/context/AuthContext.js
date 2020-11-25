@@ -62,7 +62,7 @@ const signout = (dispatch) => async () => {
   await AsyncStorage.removeItem("token");
   await AsyncStorage.removeItem("username");
   dispatch({ type: "signout" });
-  navigate("loginFlow");
+  navigate("Login");
 };
 
 const login = (dispatch) => async ({ email, password }) => {

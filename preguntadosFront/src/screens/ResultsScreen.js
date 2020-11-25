@@ -1,15 +1,20 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { Button, Container, Content, Text, H1, Spinner } from "native-base";
 import { Share } from "react-native";
 
 import { Context as TriviaContext } from "../context/TriviaContext";
+import { set } from "react-native-reanimated";
 
 const ResultsScreen = ({ navigation }) => {
   const {
-    state: { addingLeaderboard },
+    state: { addingLeaderboard, isLoading },
   } = useContext(TriviaContext);
   const gameWon = navigation.getParam("gameWon");
   const questions = navigation.getParam("questions");
+  const game_code = navigation.getParam("game_code");
+  const playerTwo = navigation.getParam("playerTwo");
+
+  const [isShared, setIsShared] = useState(false);
 
   if (addingLeaderboard) {
     return <Spinner color="blue" style={{ alignSelf: "center" }} />;
@@ -25,6 +30,111 @@ const ResultsScreen = ({ navigation }) => {
     }
   };
 
+  const shareCode = async () => {
+    setIsShared(true);
+    try {
+      const result = await Share.share({
+        message: `Juguemos Preguntados a traves de este codigo: ${game_code}`,
+      });
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  const showButtons = () => {
+    console.log(playerTwo, "player two");
+    if (playerTwo) {
+      return (
+        <>
+          <Button
+            onPress={() => {
+              onShare();
+            }}
+            rounded
+            block
+            style={{ marginBottom: 20 }}
+          >
+            <Text>Compartir Resultados</Text>
+          </Button>
+          <Button
+            onPress={() => {
+              navigation.popToTop();
+            }}
+            rounded
+            block
+          >
+            <Text>Ir al Inicio</Text>
+          </Button>
+        </>
+      );
+    } else {
+      if (isShared) {
+        return (
+          <>
+            <Button
+              onPress={() => {
+                onShare();
+              }}
+              rounded
+              block
+              style={{ marginBottom: 20 }}
+            >
+              <Text>Compartir Resultados</Text>
+            </Button>
+            <Button
+              onPress={() => {
+                navigation.popToTop();
+              }}
+              rounded
+              block
+            >
+              <Text>Ir al Inicio</Text>
+            </Button>
+          </>
+        );
+      } else {
+        if (game_code) {
+          return (
+            <Button
+              onPress={() => {
+                shareCode();
+              }}
+              rounded
+              block
+              style={{ marginBottom: 20 }}
+            >
+              <Text>Compartir Codigo del Juego</Text>
+            </Button>
+          );
+        } else {
+          return (
+            <>
+              <Button
+                onPress={() => {
+                  onShare();
+                }}
+                rounded
+                block
+                style={{ marginBottom: 20 }}
+              >
+                <Text>Compartir Resultados</Text>
+              </Button>
+              <Button
+                onPress={() => {
+                  navigation.popToTop();
+                }}
+                rounded
+                block
+              >
+                <Text>Ir al Inicio</Text>
+              </Button>
+            </>
+          );
+        }
+      }
+    }
+  };
+
   return (
     <Container>
       <Content
@@ -36,28 +146,10 @@ const ResultsScreen = ({ navigation }) => {
         }}
       >
         <H1 style={{ textAlign: "center", marginBottom: 20 }}>
-          {gameWon ? "YOU WON!" : "YOU LOSE ):"}
+          {gameWon ? "¡HAS GANADO!" : "HAS PERDIDO ):"}
         </H1>
 
-        <Button
-          onPress={() => {
-            navigation.popToTop();
-          }}
-          rounded
-          block
-        >
-          <Text>Go Home</Text>
-        </Button>
-        <Button
-          onPress={() => {
-            onShare();
-          }}
-          rounded
-          block
-          style={{ marginTop: 20 }}
-        >
-          <Text>Share Results</Text>
-        </Button>
+        {showButtons()}
       </Content>
     </Container>
   );
