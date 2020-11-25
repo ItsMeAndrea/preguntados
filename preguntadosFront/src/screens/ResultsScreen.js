@@ -9,7 +9,7 @@ const ResultsScreen = ({ navigation }) => {
   const {
     state: { addingLeaderboard, isLoading },
   } = useContext(TriviaContext);
-  const gameWon = navigation.getParam("gameWon");
+  const normalMode = navigation.getParam("normalMode");
   const questions = navigation.getParam("questions");
   const game_code = navigation.getParam("game_code");
   const playerTwo = navigation.getParam("playerTwo");
@@ -135,6 +135,22 @@ const ResultsScreen = ({ navigation }) => {
     }
   };
 
+  const handleTextQuestions = () => {
+    if (normalMode) {
+      return (
+        <Text style={{ alignSelf: "center" }}>
+          ¡Acertaste {questions} de 10 preguntas!
+        </Text>
+      );
+    } else {
+      return (
+        <Text style={{ alignSelf: "center" }}>
+          ¡Llegaste a {questions} preguntas!
+        </Text>
+      );
+    }
+  };
+
   return (
     <Container>
       <Content
@@ -146,9 +162,9 @@ const ResultsScreen = ({ navigation }) => {
         }}
       >
         <H1 style={{ textAlign: "center", marginBottom: 20 }}>
-          {gameWon ? "¡HAS GANADO!" : "HAS PERDIDO ):"}
+          ¡Juego Finalizado!
         </H1>
-
+        {handleTextQuestions()}
         {showButtons()}
       </Content>
     </Container>

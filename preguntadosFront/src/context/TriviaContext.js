@@ -87,7 +87,7 @@ const addToNormalLeaderboard = (dispatch) => async ({
     );
 
     dispatch({ type: "post_results" });
-    navigate("Results", { gameWon, questions });
+    navigate("Results", { gameWon, questions, normalMode: true });
   } catch (error) {
     console.log(error.response.data, "error");
   }
@@ -104,7 +104,7 @@ const addToRushLeaderboard = (dispatch) => async ({
       questions,
     });
     dispatch({ type: "post_results" });
-    navigate("Results", { gameWon, questions });
+    navigate("Results", { gameWon, questions, normalMode: false });
   } catch (error) {
     console.log(error.response.data, "error");
   }
@@ -149,7 +149,12 @@ const createMulltiplayer = (dispatch) => async ({
       questions_one,
     });
     dispatch({ type: "post_results" });
-    navigate("Results", { gameWon, game_code, questions: questions_one });
+    navigate("Results", {
+      gameWon,
+      game_code,
+      questions: questions_one,
+      normalMode: true,
+    });
   } catch (error) {
     console.log(error.message, "error");
   }
@@ -190,6 +195,7 @@ const addPlayerTwo = (dispatch) => async ({
       game_code,
       questions: questions_two,
       playerTwo: true,
+      normalMode: true,
     });
   } catch (error) {
     console.log(error.response.data, "error");

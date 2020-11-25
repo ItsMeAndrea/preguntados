@@ -42,6 +42,7 @@ const QuestionScreen = ({ navigation }) => {
   const [getActualTime, setGetActualTime] = useState("");
   const [updateTime, setUpdateTime] = useState(0);
   const [addTime, setAddTime] = useState("");
+  const [answers, setAnswers] = useState(0);
 
   //Se obtienen los parametros de la navegacion
   const normalMode = navigation.getParam("normalMode");
@@ -65,27 +66,26 @@ const QuestionScreen = ({ navigation }) => {
 
   //Devuelve el array de las respuesta
   const handleAnswers = () => {
-    //Si ya se cargo la data
-    if (!isLoading) {
-      // Se evalua el modo de juego y se obtienen las respuestas respectivas
-      const correctAnwer = normalMode
-        ? normalQuestions[currentQuestion].correct_answer
-        : rushQuestions[currentQuestion].correct_answer;
-      const incorrectAnswers = normalMode
-        ? normalQuestions[currentQuestion].incorrect_answers
-        : rushQuestions[currentQuestion].incorrect_answers;
-
-      //Se agrega la respuesta correcta al array de respuestas incorrectas
-      const answersArray = [...incorrectAnswers, correctAnwer];
-
-      //Ordena de forma random el array
-      for (let i = answersArray.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [answersArray[i], answersArray[j]] = [answersArray[j], answersArray[i]];
+    let correctAnswer, incorrectAnswers;
+    if (normalMode) {
+      if (currentQuestion <= 9) {
+        correctAnswer = normalQuestions[currentQuestion].correct_answer;
+        incorrectAnswers = normalQuestions[currentQuestion].incorrect_answers;
       }
-
-      return answersArray;
+    } else {
+      correctAnswer = rushQuestions[currentQuestion].correct_answer;
+      incorrectAnswers = rushQuestions[currentQuestion].incorrect_answers;
     }
+
+    const answersArray = [...incorrectAnswers, correctAnswer];
+
+    //Ordena de forma random el array
+    for (let i = answersArray.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [answersArray[i], answersArray[j]] = [answersArray[j], answersArray[i]];
+    }
+
+    return answersArray;
   };
 
   //Evalua la respuesta escogida con la correcta
@@ -118,26 +118,80 @@ const QuestionScreen = ({ navigation }) => {
     }
   };
 
-  console.log;
-
   //Maneja lo que pasa cuando se contesta una pregunta
   const handleQuestions = (answer) => {
     //Si es correcto true, si no false
     const isAnswerCorrect = checkAnswer(answer);
 
-    //Evalua si la respuesta es correcta
+    if (normalMode) {
+      if (currentQuestion === 9) {
+        //Evalua si el juego es multijuegador
+        if (multiplayer) {
+          if (playerOne) {
+            createMulltiplayer({
+              game_code: gameCode,
+              player_one: username,
+              questions_one: answers + 1,
+              gameWon: true,
+            });
+            handleExitGame();
+          } else {
+            addPlayerTwo({
+              game_code: gameCode,
+              player_two: username,
+              questions_two: answers + 1,
+              gameWon: true,
+            });
+            handleExitGame();
+          }
+        } else {
+          //Se envian los datos a la db
+          addToNormalLeaderboard({
+            username,
+            questions: answers + 1,
+            gameWon: true,
+          });
+          handleExitGame();
+        }
+
+        //Si no se ha llegado a las 10 pregunta, va aumentado el
+        //contador de currentQuestion
+      } else {
+        setCurrentQuestion(currentQuestion + 1);
+        if (isAnswerCorrect) {
+          setAnswers(answers + 1);
+        }
+      }
+    } else {
+      if (isAnswerCorrect) {
+        setCurrentQuestion(currentQuestion + 1);
+        handleRushMode();
+      } else {
+        //Detiene el timer y se envian los datos a la db
+        stoptimer();
+        addToRushLeaderboard({
+          username,
+          questions: currentQuestion,
+          gameWon: false,
+        });
+      }
+    }
+
+    /*    //Evalua si la respuesta es correcta
     if (isAnswerCorrect) {
       //Evalua si es modo Normal
       if (normalMode) {
+        console.log(currentQuestion, "NORMAL MODE");
         //Evalua si se alcanzaron las 10 pregunta. Se gana el juego
         if (currentQuestion === 9) {
+          console.log("SAVE DATA");
           //Evalua si el juego es multijuegador
           if (multiplayer) {
             if (playerOne) {
               createMulltiplayer({
                 game_code: gameCode,
                 player_one: username,
-                questions_one: currentQuestion + 1,
+                questions_one: answers + 1,
                 gameWon: true,
               });
               handleExitGame();
@@ -145,7 +199,7 @@ const QuestionScreen = ({ navigation }) => {
               addPlayerTwo({
                 game_code: gameCode,
                 player_two: username,
-                questions_two: currentQuestion + 1,
+                questions_two: answers + 1,
                 gameWon: true,
               });
               handleExitGame();
@@ -154,7 +208,7 @@ const QuestionScreen = ({ navigation }) => {
             //Se envian los datos a la db
             addToNormalLeaderboard({
               username,
-              questions: currentQuestion + 1,
+              questions: answers + 1,
               gameWon: true,
             });
             handleExitGame();
@@ -164,6 +218,7 @@ const QuestionScreen = ({ navigation }) => {
           //contador de currentQuestion
         } else {
           setCurrentQuestion(currentQuestion + 1);
+          setAnswers(answers + 1);
         }
         //Si es Modo Rush, aumenta el contador y ejecuta la funcion que
         //aumenta el tiempo
@@ -177,30 +232,13 @@ const QuestionScreen = ({ navigation }) => {
       if (normalMode) {
         if (multiplayer) {
           if (playerOne) {
-            createMulltiplayer({
-              game_code: gameCode,
-              player_one: username,
-              questions_one: currentQuestion,
-              gameWon: false,
-            });
-            handleExitGame();
+            setCurrentQuestion(currentQuestion + 1);
           } else {
-            addPlayerTwo({
-              game_code: gameCode,
-              player_two: username,
-              questions_two: currentQuestion,
-              gameWon: false,
-            });
-            handleExitGame();
+            setCurrentQuestion(currentQuestion + 1);
           }
         } else {
           //Detiene el timer y se envian los datos a la db
-          stoptimer();
-          addToNormalLeaderboard({
-            username,
-            questions: currentQuestion,
-            gameWon: false,
-          });
+          setCurrentQuestion(currentQuestion + 1);
         }
         //Si es Modo Rush
       } else {
@@ -212,19 +250,21 @@ const QuestionScreen = ({ navigation }) => {
           gameWon: false,
         });
       }
-    }
+    } */
   };
 
   //Evalua si el juego es Normal o Rush y le da formato a las preguntas
   // devuelve el string de la pregunta
   const showQuestions = () => {
     if (normalMode) {
-      return normalQuestions[currentQuestion].question
-        .replace(/&quot;/g, '"')
-        .replace(/&#039;/g, "'")
-        .replace(/&amp;/g, "&")
-        .replace(/&oacute;/g, "ó")
-        .replace(/&eacute;/g, "é");
+      if (currentQuestion <= 9) {
+        return normalQuestions[currentQuestion].question
+          .replace(/&quot;/g, '"')
+          .replace(/&#039;/g, "'")
+          .replace(/&amp;/g, "&")
+          .replace(/&oacute;/g, "ó")
+          .replace(/&eacute;/g, "é");
+      }
     } else {
       return rushQuestions[currentQuestion].question
         .replace(/&quot;/g, '"')
@@ -305,7 +345,7 @@ const QuestionScreen = ({ navigation }) => {
                     block
                     style={{ marginBottom: 20 }}
                     onPress={() => handleQuestions(answer, username)}
-                    /* success={
+                    /*   success={
                       normalMode
                         ? answer ===
                             normalQuestions[currentQuestion].correct_answer &&

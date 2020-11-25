@@ -73,7 +73,7 @@ const MultiplayerResultScreen = ({ navigation }) => {
           <Text style={{ fontSize: 20, fontWeight: "bold" }}>Resultado</Text>
         </View>
         <List>
-          {multiplayerGame.map((game, index) => (
+          {multiplayerGame.reverse().map((game, index) => (
             <ListItem key={index}>
               <View
                 style={{
